@@ -1,0 +1,23 @@
+plugins {
+    id 'java'
+    id 'com.github.johnrengelman.shadow' version '5.0.0'
+}
+
+group 'org.mythicmc'
+version '1.0.0-alpha.0'
+
+description = "A plugin that executes commands stored on Redis."
+
+sourceCompatibility = 16
+
+repositories {
+    mavenCentral()
+    maven { url = 'https://oss.sonatype.org/content/repositories/snapshots' }
+    maven { url = 'https://hub.spigotmc.org/nexus/content/repositories/snapshots/' }
+}
+
+dependencies {
+    compileOnly 'org.spigotmc:spigot-api:1.13.2-R0.1-SNAPSHOT'
+    compileOnly 'net.md-5:bungeecord-api:1.14-SNAPSHOT'
+    implementation 'redis.clients:jedis:3.6.0'
+}

@@ -1,0 +1,18 @@
+name: "RedisCommandQueue"
+version: "1.0.0-alpha.0"
+description: "A plugin that executes commands stored on Redis."
+authors: ["Ibrahim Ansari <ansari.ibrahim1@gmail.com>"]
+main: "org.mythicmc.rediscommandqueue.RedisCommandQueue"
+api-version: "1.13"
+
+commands:
+  rediscommandqueue:
+    description: "Reloads RedisCommandQueue config."
+    usage: "§cRun /rediscommandqueue reload to reload the plugin."
+    aliases: [rediscq]
+    permission: rediscommandqueue.command
+
+permissions:
+  rediscommandqueue.command:
+    description: "Reload RedisCommandQueue config."
+    default: op

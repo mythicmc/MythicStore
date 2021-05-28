@@ -1,0 +1,6 @@
+host: localhost
+port: 6739
+ssl: false
+database: 0
+user:
+password:
