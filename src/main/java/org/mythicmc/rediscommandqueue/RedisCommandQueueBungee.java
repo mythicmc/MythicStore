@@ -19,6 +19,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.util.concurrent.TimeUnit;
 
+@Deprecated
 public class RedisCommandQueueBungee extends Plugin {
     private JedisPool pool;
     private ScheduledTask task;
@@ -107,7 +108,7 @@ public class RedisCommandQueueBungee extends Plugin {
             try (Jedis jedis = pool.getResource()) {
                 // Check the type of command_queue.
                 var type = jedis.type(COMMAND_QUEUE);
-                if (type == null || type.isBlank()) return;
+                if (type == null || type.isBlank() || type.equals("none")) return;
                 else if (!type.equals("list")) {
                     if (!loggedOnce) {
                         getLogger().severe("command_queue exists in the Redis database and it is not a list!");

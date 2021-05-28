@@ -7,7 +7,7 @@ import redis.clients.jedis.JedisPool;
 import redis.clients.jedis.JedisPoolConfig;
 import redis.clients.jedis.Protocol;
 
-class RedisCommandQueue extends JavaPlugin {
+public class RedisCommandQueue extends JavaPlugin {
     private JedisPool pool;
     private BukkitTask task;
     private boolean loggedOnce = false;
@@ -61,7 +61,7 @@ class RedisCommandQueue extends JavaPlugin {
             try (Jedis jedis = pool.getResource()) {
                 // Check the type of command_queue.
                 var type = jedis.type(COMMAND_QUEUE);
-                if (type == null || type.isBlank()) return;
+                if (type == null || type.isBlank() || type.equals("none")) return;
                 else if (!type.equals("list")) {
                     if (!loggedOnce) {
                         getLogger().severe("command_queue exists in the Redis database and it is not a list!");

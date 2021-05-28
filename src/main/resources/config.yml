@@ -1,5 +1,5 @@
 host: localhost
-port: 6739
+port: 6379
 ssl: false
 database: 0
 user:
