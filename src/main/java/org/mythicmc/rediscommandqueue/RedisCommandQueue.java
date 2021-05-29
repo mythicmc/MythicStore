@@ -11,7 +11,7 @@ public class RedisCommandQueue extends JavaPlugin {
     private JedisPool pool;
     private BukkitTask task;
     private boolean loggedOnce = false;
-    private final String COMMAND_QUEUE = "command_queue";
+    private final String COMMAND_QUEUE = "command-queue";
 
     @Override
     public void onEnable() {
@@ -44,7 +44,7 @@ public class RedisCommandQueue extends JavaPlugin {
         pool = new JedisPool(
                 new JedisPoolConfig(),
                 getConfig().getString("host", "localhost"),
-                getConfig().getInt("port", 6739),
+                getConfig().getInt("port", 6379),
                 Protocol.DEFAULT_TIMEOUT,
                 user != null && user.isBlank() ? null : user,
                 password != null && password.isBlank() ? null : password,
@@ -64,13 +64,13 @@ public class RedisCommandQueue extends JavaPlugin {
                 if (type == null || type.isBlank() || type.equals("none")) return;
                 else if (!type.equals("list")) {
                     if (!loggedOnce) {
-                        getLogger().severe("command_queue exists in the Redis database and it is not a list!");
+                        getLogger().severe(COMMAND_QUEUE + " exists in the Redis database and it is not a list!");
                         loggedOnce = true;
                     }
                     return;
                 }
                 if (loggedOnce) {
-                    getLogger().info("command_queue is now a valid list. Reading the queue normally now.");
+                    getLogger().info(COMMAND_QUEUE + " is now a valid list. Reading the queue normally now.");
                     loggedOnce = false;
                 }
 
