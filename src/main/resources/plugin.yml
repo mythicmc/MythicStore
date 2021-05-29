@@ -1,5 +1,5 @@
 name: "RedisCommandQueue"
-version: "1.0.0"
+version: "1.0.1"
 description: "A plugin that executes commands stored on Redis."
 authors: ["Ibrahim Ansari <ansari.ibrahim1@gmail.com>"]
 main: "org.mythicmc.rediscommandqueue.RedisCommandQueue"
