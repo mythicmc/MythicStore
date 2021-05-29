@@ -74,13 +74,13 @@ public class RedisCommandQueue extends JavaPlugin {
                     loggedOnce = false;
                 }
 
-                var commands = jedis.lrange(COMMAND_QUEUE, 0, -1);
-                if (commands.size() == 0) return;
-                for (var command : commands) {
-                    jedis.lrem(COMMAND_QUEUE, 1, command);
+                var command = jedis.lpop(COMMAND_QUEUE);
+                while (command != null && !command.isBlank()) {
+                    String finalCommand = command;
                     getServer().getScheduler().runTask(
-                            this, () -> getServer().dispatchCommand(getServer().getConsoleSender(), command)
+                            this, () -> getServer().dispatchCommand(getServer().getConsoleSender(), finalCommand)
                     );
+                    command = jedis.lpop(COMMAND_QUEUE);
                 }
             }
         }, 20 * 60, 20 * 60);
