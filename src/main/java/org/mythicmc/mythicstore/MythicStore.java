@@ -9,8 +9,8 @@ import redis.clients.jedis.JedisPoolConfig;
 import redis.clients.jedis.Protocol;
 
 public class MythicStore extends JavaPlugin {
-    public JedisPool pool;
-    public BukkitTask task;
+    private JedisPool pool;
+    private BukkitTask task;
     private boolean loggedOnce = false;
     private final String COMMAND_QUEUE = "command-queue";
 
@@ -23,8 +23,10 @@ public class MythicStore extends JavaPlugin {
         try {
             saveDefaultConfig();
             reloadConfig();
-            createPool();
-            createTask();
+            if (getConfig().getBoolean("redis.enabled")) {
+                createPool();
+                createTask();
+            }
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -78,9 +80,27 @@ public class MythicStore extends JavaPlugin {
         }, 20 * 60, 20 * 60);
     }
 
+    public void reloadPlugin() {
+        reloadConfig();
+        if (getConfig().getBoolean("redis.enabled")) {
+            if (task != null) task.cancel();
+            if (pool != null) pool.close();
+            createPool();
+            createTask();
+        }
+    }
+
     @Override
     public void onDisable() {
         task.cancel();
         pool.close();
+    }
+
+    public JedisPool getPool() {
+        return pool;
+    }
+
+    public BukkitTask getTask() {
+        return task;
     }
 }
