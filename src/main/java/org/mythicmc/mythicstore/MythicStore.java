@@ -1,32 +1,24 @@
-package org.mythicmc.rediscommandqueue;
+package org.mythicmc.mythicstore;
 
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitTask;
+import org.mythicmc.mythicstore.command.StoreCommand;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
 import redis.clients.jedis.JedisPoolConfig;
 import redis.clients.jedis.Protocol;
 
-public class RedisCommandQueue extends JavaPlugin {
-    private JedisPool pool;
-    private BukkitTask task;
+public class MythicStore extends JavaPlugin {
+    public JedisPool pool;
+    public BukkitTask task;
     private boolean loggedOnce = false;
     private final String COMMAND_QUEUE = "command-queue";
 
     @Override
     public void onEnable() {
-        var pluginCommand = getCommand("rediscommandqueue");
-        if (pluginCommand != null) {
-            pluginCommand.setExecutor((sender, command, label, args) -> {
-                if (args.length != 1 || !args[0].equals("reload")) return false;
-                if (task != null) task.cancel();
-                if (pool != null) pool.close();
-                createPool();
-                createTask();
-                sender.sendMessage("§aReloaded RedisCommandQueue. Check console for errors.");
-                return true;
-            });
-        }
+        var pluginCommand = getCommand("mythicstore");
+        if (pluginCommand != null)
+            pluginCommand.setExecutor(new StoreCommand(this));
 
         try {
             saveDefaultConfig();
@@ -38,7 +30,7 @@ public class RedisCommandQueue extends JavaPlugin {
         }
     }
 
-    private void createPool() {
+    public void createPool() {
         var user = getConfig().getString("user");
         var password = getConfig().getString("password");
         pool = new JedisPool(
@@ -53,7 +45,7 @@ public class RedisCommandQueue extends JavaPlugin {
         );
     }
 
-    private void createTask() {
+    public void createTask() {
         // Create repeating task to read the pool.
         task = getServer().getScheduler().runTaskTimerAsynchronously(this, () -> {
             if (pool.isClosed() || task.isCancelled()) return;

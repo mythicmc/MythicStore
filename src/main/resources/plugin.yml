@@ -1,18 +1,17 @@
-name: "RedisCommandQueue"
+name: "MythicStore"
 version: "1.0.1"
-description: "A plugin that executes commands stored on Redis."
+description: "Utilities to help mythicmc/store run actions on the MythicMC server."
 authors: ["Ibrahim Ansari <ansari.ibrahim1@gmail.com>"]
-main: "org.mythicmc.rediscommandqueue.RedisCommandQueue"
+main: "org.mythicmc.mythicstore.MythicStore"
 api-version: "1.13"
 
 commands:
-  rediscommandqueue:
-    description: "Reloads RedisCommandQueue config."
-    usage: "§cRun /rediscommandqueue reload to reload the plugin."
-    aliases: [rediscq]
-    permission: rediscommandqueue.command
+  mythicstore:
+    description: "Reloads MythicStore config."
+    usage: "§cRun /mythicstore reload to reload the plugin."
+    permission: mythicstore.reload
 
 permissions:
-  rediscommandqueue.command:
-    description: "Reload RedisCommandQueue config."
+  mythicstore.reload:
+    description: "Reload MythicStore config."
     default: op
