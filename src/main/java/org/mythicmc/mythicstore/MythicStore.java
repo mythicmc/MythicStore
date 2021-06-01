@@ -2,6 +2,7 @@ package org.mythicmc.mythicstore;
 
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitTask;
+import org.mythicmc.mythicstore.command.CreativePlotCommand;
 import org.mythicmc.mythicstore.command.StoreCommand;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
@@ -19,6 +20,9 @@ public class MythicStore extends JavaPlugin {
         var pluginCommand = getCommand("mythicstore");
         if (pluginCommand != null)
             pluginCommand.setExecutor(new StoreCommand(this));
+        pluginCommand = getCommand("givecreativeplot");
+        if (pluginCommand != null)
+            pluginCommand.setExecutor(new CreativePlotCommand(this));
 
         try {
             saveDefaultConfig();

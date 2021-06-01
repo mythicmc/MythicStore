@@ -10,8 +10,15 @@ commands:
     description: "Reloads MythicStore config."
     usage: "§cRun /mythicstore reload to reload the plugin."
     permission: mythicstore.reload
+  givecreativeplot:
+    description: "Gives the player an additional creative plot."
+    usage: "/givecreativeplot <player>"
+    permission: mythicstore.giveplot
 
 permissions:
   mythicstore.reload:
     description: "Reload MythicStore config."
+    default: op
+  mythicstore.giveplot:
+    description: "Give a player a plot"
     default: op

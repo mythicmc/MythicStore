@@ -6,3 +6,6 @@ redis:
   database: 0
   user:
   password:
+givecreativeplot:
+  max-plots: 9
+  min-plots: 4
