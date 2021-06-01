@@ -33,17 +33,17 @@ public class MythicStore extends JavaPlugin {
     }
 
     public void createPool() {
-        var user = getConfig().getString("user");
-        var password = getConfig().getString("password");
+        var user = getConfig().getString("redis.user");
+        var password = getConfig().getString("redis.password");
         pool = new JedisPool(
                 new JedisPoolConfig(),
-                getConfig().getString("host", "localhost"),
-                getConfig().getInt("port", 6379),
+                getConfig().getString("redis.host", "localhost"),
+                getConfig().getInt("redis.port", 6379),
                 Protocol.DEFAULT_TIMEOUT,
                 user != null && user.isBlank() ? null : user,
                 password != null && password.isBlank() ? null : password,
-                getConfig().getInt("database", 0),
-                getConfig().getBoolean("ssl", false)
+                getConfig().getInt("redis.database", 0),
+                getConfig().getBoolean("redis.ssl", false)
         );
     }
 
@@ -81,10 +81,16 @@ public class MythicStore extends JavaPlugin {
     }
 
     public void reloadPlugin() {
+        if (task != null) {
+            task.cancel();
+            task = null;
+        }
+        if (pool != null) {
+            pool.close();
+            pool = null;
+        }
         reloadConfig();
         if (getConfig().getBoolean("redis.enabled")) {
-            if (task != null) task.cancel();
-            if (pool != null) pool.close();
             createPool();
             createTask();
         }
