@@ -61,10 +61,8 @@ public class MythicStore extends JavaPlugin {
                 var type = jedis.type(COMMAND_QUEUE);
                 if (type == null || type.isBlank() || type.equals("none")) return;
                 else if (!type.equals("list")) {
-                    if (!loggedOnce) {
-                        getLogger().severe(COMMAND_QUEUE + " exists in the Redis database and it is not a list!");
-                        loggedOnce = true;
-                    }
+                    getLogger().severe(COMMAND_QUEUE + " exists in the Redis database and it is not a list!");
+                    loggedOnce = true;
                     return;
                 }
                 if (loggedOnce) {
@@ -80,8 +78,11 @@ public class MythicStore extends JavaPlugin {
                     );
                     command = jedis.lpop(COMMAND_QUEUE);
                 }
+            } catch (Exception e) {
+                getLogger().severe("Failed to make request to Redis.");
+                e.printStackTrace();
             }
-        }, 20 * 60, 20 * 60);
+        }, 20 * 30, 20 * 30);
     }
 
     public void reloadPlugin() {
