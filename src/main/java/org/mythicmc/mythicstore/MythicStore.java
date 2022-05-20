@@ -4,6 +4,9 @@ import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitTask;
 import org.mythicmc.mythicstore.command.CreativePlotCommand;
 import org.mythicmc.mythicstore.command.StoreCommand;
+import org.mythicmc.mythicstore.delayedcommands.DelayedCommands;
+import org.mythicmc.mythicstore.skincontrol.SkinControl;
+import org.mythicmc.mythicstore.tempflyvouchers.TempFlyVouchers;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
 import redis.clients.jedis.JedisPoolConfig;
@@ -30,6 +33,15 @@ public class MythicStore extends JavaPlugin {
             if (getConfig().getBoolean("redis.enabled")) {
                 createPool();
                 createTask();
+            }
+            if (getConfig().getBoolean("extras.skincontrol")) {
+                new SkinControl(this).register();
+            }
+            if (getConfig().getBoolean("extras.tempflyvouchers")) {
+                new TempFlyVouchers(this).register();
+            }
+            if (getConfig().getBoolean("extras.delayedcommands")) {
+                new DelayedCommands(this).register();
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -103,8 +115,12 @@ public class MythicStore extends JavaPlugin {
 
     @Override
     public void onDisable() {
-        task.cancel();
-        pool.close();
+        if (task != null) {
+            task.cancel();
+        }
+        if (pool != null) {
+            pool.close();
+        }
     }
 
     public JedisPool getPool() {
