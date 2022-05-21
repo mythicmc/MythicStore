@@ -1,22 +1,33 @@
 package org.mythicmc.mythicstore;
 
-import org.bukkit.plugin.java.JavaPlugin;
-import org.bukkit.scheduler.BukkitTask;
 import org.mythicmc.mythicstore.command.CreativePlotCommand;
+import org.mythicmc.mythicstore.command.DelayedCommands;
+import org.mythicmc.mythicstore.command.SkinControlCommand;
 import org.mythicmc.mythicstore.command.StoreCommand;
-import org.mythicmc.mythicstore.delayedcommands.DelayedCommands;
-import org.mythicmc.mythicstore.skincontrol.SkinControl;
-import org.mythicmc.mythicstore.tempflyvouchers.TempFlyVouchers;
+import org.mythicmc.mythicstore.listener.PlayerJoinListener;
+import org.mythicmc.mythicstore.util.DelayedCommandsData;
+
+import org.bukkit.scheduler.BukkitTask;
+import org.bukkit.plugin.java.JavaPlugin;
+import org.bukkit.configuration.file.FileConfiguration;
+import org.bukkit.configuration.file.YamlConfiguration;
+
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
 import redis.clients.jedis.JedisPoolConfig;
 import redis.clients.jedis.Protocol;
+
+import java.io.File;
 
 public class MythicStore extends JavaPlugin {
     private JedisPool pool;
     private BukkitTask task;
     private boolean loggedOnce = false;
     private final String COMMAND_QUEUE = "command-queue";
+
+    private File skinControlFile;
+    private FileConfiguration skinControlConfiguration;
+    private DelayedCommandsData delayedCommandsData;
 
     @Override
     public void onEnable() {
@@ -34,14 +45,20 @@ public class MythicStore extends JavaPlugin {
                 createPool();
                 createTask();
             }
+
             if (getConfig().getBoolean("extras.skincontrol")) {
-                new SkinControl(this).register();
+                loadSkinControl();
+                pluginCommand = getCommand("skincontrol");
+                if (pluginCommand != null)
+                    pluginCommand.setExecutor(new SkinControlCommand(this));
             }
-            if (getConfig().getBoolean("extras.tempflyvouchers")) {
-                new TempFlyVouchers(this).register();
-            }
+
             if (getConfig().getBoolean("extras.delayedcommands")) {
-                new DelayedCommands(this).register();
+                loadDelayedCommands();
+                pluginCommand = getCommand("runonjoin");
+                if(pluginCommand != null)
+                    pluginCommand.setExecutor(new DelayedCommands(this));
+                getServer().getPluginManager().registerEvents(new PlayerJoinListener(this), this);
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -97,6 +114,19 @@ public class MythicStore extends JavaPlugin {
         }, 20 * 30, 20 * 30);
     }
 
+    private void loadSkinControl() {
+        skinControlFile = new File(getDataFolder(), "skincontrol.yml");
+        if(!skinControlFile.exists())
+            this.saveResource("skincontrol.yml", true);
+        skinControlConfiguration = YamlConfiguration.loadConfiguration(skinControlFile);
+    }
+
+    private void loadDelayedCommands() {
+        delayedCommandsData = new DelayedCommandsData(this);
+        delayedCommandsData.createDataYML();
+        delayedCommandsData.reloadData();
+    }
+
     public void reloadPlugin() {
         if (task != null) {
             task.cancel();
@@ -129,5 +159,17 @@ public class MythicStore extends JavaPlugin {
 
     public BukkitTask getTask() {
         return task;
+    }
+
+    public File getSkinControlFile() {
+        return skinControlFile;
+    }
+
+    public FileConfiguration getSkinControlConfiguration() {
+        return skinControlConfiguration;
+    }
+
+    public DelayedCommandsData getDelayedCommandsData() {
+        return delayedCommandsData;
     }
 }

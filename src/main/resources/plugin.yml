@@ -16,14 +16,11 @@ commands:
     description: "Gives the player an additional creative plot."
     usage: "/givecreativeplot <player>"
     permission: mythicstore.giveplot
+  skincontrol:
+    description: "Main command for SkinControl."
   runonjoin:
     aliases:
       - roj
-  givetfvoucher:
-    aliases:
-      - tfv
-  skincontrol:
-    description: Main command for SkinControl.
 
 permissions:
   mythicstore.reload:
@@ -33,4 +30,5 @@ permissions:
     description: "Give a player a plot"
     default: op
   skincontrol.purchased:
-    description: Indicates that the person has purchased the Vip rank for an extended time.
+    description: "Indicates that the person has purchased the Vip rank for an extended time."
+    default: op

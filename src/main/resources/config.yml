@@ -12,5 +12,3 @@ givecreativeplot:
 extras:
   skincontrol: true
   delayedcommands: true
-  tempflyvouchers: true
-  tfcommand: "tf give {player} 45m"
