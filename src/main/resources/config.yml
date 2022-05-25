@@ -9,6 +9,5 @@ redis:
 givecreativeplot:
   max-plots: 9
   min-plots: 4
-extras:
-  skincontrol: true
-  delayedcommands: true
+skincontrol: true
+delayedcommands: true

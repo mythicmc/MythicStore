@@ -1,17 +1,15 @@
 package org.mythicmc.mythicstore;
 
+import org.bukkit.configuration.file.FileConfiguration;
+import org.bukkit.configuration.file.YamlConfiguration;
+import org.bukkit.plugin.java.JavaPlugin;
+import org.bukkit.scheduler.BukkitTask;
 import org.mythicmc.mythicstore.command.CreativePlotCommand;
 import org.mythicmc.mythicstore.command.DelayedCommands;
 import org.mythicmc.mythicstore.command.SkinControlCommand;
 import org.mythicmc.mythicstore.command.StoreCommand;
 import org.mythicmc.mythicstore.listener.PlayerJoinListener;
 import org.mythicmc.mythicstore.util.DelayedCommandsData;
-
-import org.bukkit.scheduler.BukkitTask;
-import org.bukkit.plugin.java.JavaPlugin;
-import org.bukkit.configuration.file.FileConfiguration;
-import org.bukkit.configuration.file.YamlConfiguration;
-
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
 import redis.clients.jedis.JedisPoolConfig;
@@ -26,7 +24,7 @@ public class MythicStore extends JavaPlugin {
     private final String COMMAND_QUEUE = "command-queue";
 
     private File skinControlFile;
-    private FileConfiguration skinControlConfiguration;
+    private FileConfiguration skinControlData;
     private DelayedCommandsData delayedCommandsData;
 
     @Override
@@ -46,17 +44,17 @@ public class MythicStore extends JavaPlugin {
                 createTask();
             }
 
-            if (getConfig().getBoolean("extras.skincontrol")) {
+            if (getConfig().getBoolean("skincontrol")) {
                 loadSkinControl();
                 pluginCommand = getCommand("skincontrol");
                 if (pluginCommand != null)
                     pluginCommand.setExecutor(new SkinControlCommand(this));
             }
 
-            if (getConfig().getBoolean("extras.delayedcommands")) {
+            if (getConfig().getBoolean("delayedcommands")) {
                 loadDelayedCommands();
                 pluginCommand = getCommand("runonjoin");
-                if(pluginCommand != null)
+                if (pluginCommand != null)
                     pluginCommand.setExecutor(new DelayedCommands(this));
                 getServer().getPluginManager().registerEvents(new PlayerJoinListener(this), this);
             }
@@ -116,9 +114,9 @@ public class MythicStore extends JavaPlugin {
 
     private void loadSkinControl() {
         skinControlFile = new File(getDataFolder(), "skincontrol.yml");
-        if(!skinControlFile.exists())
+        if (!skinControlFile.exists())
             this.saveResource("skincontrol.yml", true);
-        skinControlConfiguration = YamlConfiguration.loadConfiguration(skinControlFile);
+        skinControlData = YamlConfiguration.loadConfiguration(skinControlFile);
     }
 
     private void loadDelayedCommands() {
@@ -165,8 +163,8 @@ public class MythicStore extends JavaPlugin {
         return skinControlFile;
     }
 
-    public FileConfiguration getSkinControlConfiguration() {
-        return skinControlConfiguration;
+    public FileConfiguration getSkinControlData() {
+        return skinControlData;
     }
 
     public DelayedCommandsData getDelayedCommandsData() {

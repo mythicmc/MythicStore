@@ -18,9 +18,13 @@ commands:
     permission: mythicstore.giveplot
   skincontrol:
     description: "Main command for SkinControl."
+    usage: "/skincontrol <upgrade|expire> <player> (days)"
+    permission: mythicstore.skincontrol
   runonjoin:
-    aliases:
-      - roj
+    description: "Runs the command next time this player logs in"
+    usage: "/runonjoin <player> <command>"
+    aliases: [ roj ]
+    permission: mythicstore.runonjoin
 
 permissions:
   mythicstore.reload:
@@ -29,6 +33,12 @@ permissions:
   mythicstore.giveplot:
     description: "Give a player a plot"
     default: op
-  skincontrol.purchased:
+  mythicstore.purchasedskin:
     description: "Indicates that the person has purchased the Vip rank for an extended time."
+    default: op
+  mythicstore.skincontrol:
+    description: "Permission to use /skincontrol command"
+    default: op
+  mythicstore.runonjoin:
+    description: "Permission to use /runonjoin command"
     default: op

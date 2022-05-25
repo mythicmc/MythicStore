@@ -1,11 +1,11 @@
-
 package org.mythicmc.mythicstore.command;
 
-import org.mythicmc.mythicstore.MythicStore;
-
+import net.luckperms.api.LuckPermsProvider;
+import net.luckperms.api.model.user.User;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
+import org.mythicmc.mythicstore.MythicStore;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -13,9 +13,6 @@ import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.util.Arrays;
 import java.util.concurrent.CompletableFuture;
-
-import net.luckperms.api.LuckPermsProvider;
-import net.luckperms.api.model.user.User;
 
 public class SkinControlCommand implements CommandExecutor {
     private final MythicStore plugin;
@@ -32,9 +29,9 @@ public class SkinControlCommand implements CommandExecutor {
         }
         String[] slicedArgs = Arrays.copyOfRange(args, 1, args.length);
         if (args[0].equalsIgnoreCase("upgrade")) {
-            this.handleUpgrade(slicedArgs, sender);
+            handleUpgrade(slicedArgs, sender);
         } else if (args[0].equalsIgnoreCase("expire")) {
-            this.handleExpire(slicedArgs, sender);
+            handleExpire(slicedArgs, sender);
         } else {
             sender.sendMessage("Invalid command. Valid commands: 'upgrade', 'expire'.");
         }
@@ -46,24 +43,23 @@ public class SkinControlCommand implements CommandExecutor {
             sender.sendMessage("Invalid usage for 'upgrade'.");
             return;
         }
-        this.checkUserPermission(args[0]).thenAcceptAsync(hasPerm -> {
+        checkUserPermission(args[0]).thenAcceptAsync(hasPerm -> {
             if (hasPerm) {
                 return;
             }
-            this.plugin.getServer().getScheduler().runTask(this.plugin, () -> {
-                int daysLeft = this.plugin.getSkinControlConfiguration().getInt(args[0]);
+            plugin.getServer().getScheduler().runTask(plugin, () -> {
+                int daysLeft = plugin.getSkinControlData().getInt(args[0]);
                 if (daysLeft + Integer.parseInt(args[1]) < 30) {
-                    this.plugin.getSkinControlConfiguration().set(args[0], daysLeft + Integer.parseInt(args[1]));
+                    plugin.getSkinControlData().set(args[0], daysLeft + Integer.parseInt(args[1]));
                 } else {
-                    this.plugin.getSkinControlConfiguration().set(args[0], null);
-                    this.plugin.getServer().dispatchCommand(sender, "lp user " + args[0] + " parent add ltvip");
+                    plugin.getSkinControlData().set(args[0], null);
+                    plugin.getServer().dispatchCommand(sender, "lp user " + args[0] + " parent add ltvip");
                 }
-                String data = this.plugin.getSkinControlConfiguration().saveToString();
-                this.plugin.getServer().getScheduler().runTaskAsynchronously(this.plugin, () -> {
-                    try (OutputStreamWriter writer = new OutputStreamWriter(new FileOutputStream(this.plugin.getSkinControlFile()))){
+                String data = plugin.getSkinControlData().saveToString();
+                plugin.getServer().getScheduler().runTaskAsynchronously(plugin, () -> {
+                    try (OutputStreamWriter writer = new OutputStreamWriter(new FileOutputStream(plugin.getSkinControlFile()))) {
                         writer.write(data);
-                    }
-                    catch (IOException e) {
+                    } catch (IOException e) {
                         e.printStackTrace();
                     }
                 });
@@ -76,16 +72,16 @@ public class SkinControlCommand implements CommandExecutor {
             sender.sendMessage("Invalid usage for 'expire'.");
             return;
         }
-        this.checkUserPermission(args[0]).thenAcceptAsync(res -> {
+        checkUserPermission(args[0]).thenAcceptAsync(res -> {
             if (!res) {
-                this.plugin.getServer().getScheduler().runTask(this.plugin, () -> this.plugin.getServer().dispatchCommand(sender, "rc bungee skin clear " + args[0]));
+                plugin.getServer().getScheduler().runTask(plugin, () -> plugin.getServer().dispatchCommand(sender, "rc bungee skin clear " + args[0]));
                 File skinFile = new File("../bungeecord/plugins/SkinsRestorer/Players", args[0].toLowerCase() + ".player");
                 if (!skinFile.delete()) {
-                    this.plugin.getLogger().warning("Failed to delete " + skinFile.getAbsolutePath() + ".");
+                    plugin.getLogger().warning("Failed to delete " + skinFile.getAbsolutePath() + ".");
                 }
-                this.plugin.getLogger().info("Expired " + args[0] + "'s skin.");
+                plugin.getLogger().info("Expired " + args[0] + "'s skin.");
             } else {
-                this.plugin.getLogger().info("Skipped expiring " + args[0] + "'s skin as they have permission.");
+                plugin.getLogger().info("Skipped expiring " + args[0] + "'s skin as they have permission.");
             }
         });
     }
@@ -99,12 +95,12 @@ public class SkinControlCommand implements CommandExecutor {
                     .thenComposeAsync((uuid) -> LuckPermsProvider.get().getUserManager().loadUser(uuid))
                     .thenApplyAsync((user) -> user.getCachedData()
                             .getPermissionData()
-                            .checkPermission("skincontrol.purchased")
+                            .checkPermission("mythicstore.purchasedskin")
                             .asBoolean());
         } else {
             return CompletableFuture.completedFuture(data.getCachedData()
                     .getPermissionData()
-                    .checkPermission("skincontrol.purchased")
+                    .checkPermission("mythicstore.purchasedskin")
                     .asBoolean());
         }
     }
