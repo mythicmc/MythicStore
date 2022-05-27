@@ -22,17 +22,17 @@ public class DelayedCommandsData {
 
     public DelayedCommandsData(MythicStore plugin) {
         this.plugin = plugin;
-        this.file = new File(plugin.getDataFolder(), "DelayedCommands.yml");
+        this.file = new File(plugin.getDataFolder(), "delayedcommands.yml");
         this.configuration = YamlConfiguration.loadConfiguration(this.file);
     }
 
     public void createDataYML() {
         try {
             if (!file.exists() && file.createNewFile()) {
-                plugin.getLogger().info(ChatColor.GREEN + "Successfully created DelayedCommands.yml");
+                plugin.getLogger().info(ChatColor.GREEN + "Successfully created delayedcommands.yml");
             }
         } catch (IOException e) {
-            plugin.getLogger().severe(ChatColor.RED + "Couldn't create DelayedCommands.yml");
+            plugin.getLogger().severe(ChatColor.RED + "Couldn't create delayedcommands.yml");
         }
     }
 

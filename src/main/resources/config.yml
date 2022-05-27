@@ -10,4 +10,4 @@ givecreativeplot:
   max-plots: 9
   min-plots: 4
 skincontrol: true
-delayedcommands: true
+runonjoincmd: true

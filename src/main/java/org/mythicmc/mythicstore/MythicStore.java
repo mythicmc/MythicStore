@@ -5,7 +5,7 @@ import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitTask;
 import org.mythicmc.mythicstore.command.CreativePlotCommand;
-import org.mythicmc.mythicstore.command.DelayedCommands;
+import org.mythicmc.mythicstore.command.RunOnJoinCommand;
 import org.mythicmc.mythicstore.command.SkinControlCommand;
 import org.mythicmc.mythicstore.command.StoreCommand;
 import org.mythicmc.mythicstore.listener.PlayerJoinListener;
@@ -51,11 +51,11 @@ public class MythicStore extends JavaPlugin {
                     pluginCommand.setExecutor(new SkinControlCommand(this));
             }
 
-            if (getConfig().getBoolean("delayedcommands")) {
+            if (getConfig().getBoolean("runonjoincmd")) {
                 loadDelayedCommands();
                 pluginCommand = getCommand("runonjoin");
                 if (pluginCommand != null)
-                    pluginCommand.setExecutor(new DelayedCommands(this));
+                    pluginCommand.setExecutor(new RunOnJoinCommand(this));
                 getServer().getPluginManager().registerEvents(new PlayerJoinListener(this), this);
             }
         } catch (Exception e) {

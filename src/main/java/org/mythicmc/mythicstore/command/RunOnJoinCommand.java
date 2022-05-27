@@ -12,10 +12,10 @@ import java.io.IOException;
 import java.util.List;
 import java.util.logging.Level;
 
-public class DelayedCommands implements CommandExecutor {
+public class RunOnJoinCommand implements CommandExecutor {
     private final MythicStore plugin;
 
-    public DelayedCommands(MythicStore plugin) {
+    public RunOnJoinCommand(MythicStore plugin) {
         this.plugin = plugin;
     }
 
@@ -23,15 +23,15 @@ public class DelayedCommands implements CommandExecutor {
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         if (sender instanceof Player) {
             sender.sendMessage(ChatColor.RED + "This is only console command");
-            return false;
+            return true;
         }
         if (args.length < 2) {
             sender.sendMessage(ChatColor.GREEN + "Usage: " + ChatColor.WHITE + "/roj <player> <command>");
-            return false;
+            return true;
         }
         if (!args[0].matches("^\\w{3,16}$")) {
             plugin.getLogger().log(Level.SEVERE, "Incorrect player name was given \"" + args[0] + "\"");
-            return false;
+            return true;
         }
         StringBuilder stringBuilder = new StringBuilder();
         for (int x = 1; x < args.length; ++x) {
@@ -44,7 +44,7 @@ public class DelayedCommands implements CommandExecutor {
             for (String s : list) {
                 Bukkit.dispatchCommand(plugin.getServer().getConsoleSender(), s.replace("{player}", args[0]));
             }
-            return false;
+            return true;
         }
         plugin.getDelayedCommandsData().getData().set(args[0].toLowerCase(), list);
         try {
@@ -52,7 +52,7 @@ public class DelayedCommands implements CommandExecutor {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        return false;
+        return true;
     }
 }
 

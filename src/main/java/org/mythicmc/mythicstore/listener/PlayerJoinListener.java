@@ -23,8 +23,7 @@ public class PlayerJoinListener implements Listener {
         for (String s : plugin.getDelayedCommandsData().getData().getStringList(e.getPlayer().getName().toLowerCase())) {
             Bukkit.dispatchCommand(plugin.getServer().getConsoleSender(), s.replace("{player}", e.getPlayer().getName()));
         }
-        plugin.getDelayedCommandsData().getData().set(e.getPlayer().getName().toLowerCase(), "");
+        plugin.getDelayedCommandsData().getData().set(e.getPlayer().getName().toLowerCase(), null);
         plugin.getDelayedCommandsData().saveData();
     }
 }
-
