@@ -7,10 +7,7 @@ import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.mythicmc.mythicstore.MythicStore;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.OutputStreamWriter;
+import java.io.*;
 import java.util.Arrays;
 import java.util.concurrent.CompletableFuture;
 
@@ -27,14 +24,13 @@ public class SkinControlCommand implements CommandExecutor {
             sender.sendMessage("Invalid usage.");
             return true;
         }
+
         String[] slicedArgs = Arrays.copyOfRange(args, 1, args.length);
-        if (args[0].equalsIgnoreCase("upgrade")) {
-            handleUpgrade(slicedArgs, sender);
-        } else if (args[0].equalsIgnoreCase("expire")) {
-            handleExpire(slicedArgs, sender);
-        } else {
-            sender.sendMessage("Invalid command. Valid commands: 'upgrade', 'expire'.");
-        }
+
+        if (args[0].equalsIgnoreCase("upgrade")) handleUpgrade(slicedArgs, sender);
+        else if (args[0].equalsIgnoreCase("expire")) handleExpire(slicedArgs, sender);
+        else sender.sendMessage("Invalid command. Valid commands: 'upgrade', 'expire'.");
+
         return true;
     }
 
@@ -43,12 +39,14 @@ public class SkinControlCommand implements CommandExecutor {
             sender.sendMessage("Invalid usage for 'upgrade'.");
             return;
         }
+
         checkUserPermission(args[0]).thenAcceptAsync(hasPerm -> {
-            if (hasPerm) {
-                return;
-            }
+            if (hasPerm) return;
+
             plugin.getServer().getScheduler().runTask(plugin, () -> {
                 int daysLeft = plugin.getSkinControlData().getInt(args[0]);
+
+                // If it's 0, then it doesn't exist.
                 if (daysLeft + Integer.parseInt(args[1]) < 30) {
                     plugin.getSkinControlData().set(args[0], daysLeft + Integer.parseInt(args[1]));
                 } else {
@@ -57,7 +55,7 @@ public class SkinControlCommand implements CommandExecutor {
                 }
                 String data = plugin.getSkinControlData().saveToString();
                 plugin.getServer().getScheduler().runTaskAsynchronously(plugin, () -> {
-                    try (OutputStreamWriter writer = new OutputStreamWriter(new FileOutputStream(plugin.getSkinControlFile()))) {
+                    try (Writer writer = new OutputStreamWriter(new FileOutputStream(plugin.getSkinControlFile()))) {
                         writer.write(data);
                     } catch (IOException e) {
                         e.printStackTrace();
@@ -72,19 +70,23 @@ public class SkinControlCommand implements CommandExecutor {
             sender.sendMessage("Invalid usage for 'expire'.");
             return;
         }
+
         checkUserPermission(args[0]).thenAcceptAsync(res -> {
             if (!res) {
-                plugin.getServer().getScheduler().runTask(plugin, () -> plugin.getServer().dispatchCommand(sender, "rc bungee skin clear " + args[0]));
-                File skinFile = new File("../bungeecord/plugins/SkinsRestorer/Players", args[0].toLowerCase() + ".player");
-                if (!skinFile.delete()) {
+                plugin.getServer().getScheduler().runTask(plugin, () ->
+                        plugin.getServer().dispatchCommand(sender, "rc bungee skin clear " + args[0]));
+
+                File skinFile = new File("../bungeecord/plugins/SkinsRestorer/Players",
+                        args[0].toLowerCase() + ".player");
+
+                if (!skinFile.delete())
                     plugin.getLogger().warning("Failed to delete " + skinFile.getAbsolutePath() + ".");
-                }
+
                 plugin.getLogger().info("Expired " + args[0] + "'s skin.");
-            } else {
-                plugin.getLogger().info("Skipped expiring " + args[0] + "'s skin as they have permission.");
-            }
+            } else plugin.getLogger().info("Skipped expiring " + args[0] + "'s skin as they have permission.");
         });
     }
+
 
     private CompletableFuture<Boolean> checkUserPermission(String name) {
         User data = LuckPermsProvider.get().getUserManager().getUser(name);
