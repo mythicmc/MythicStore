@@ -1,5 +1,5 @@
 redis:
-  enabled: true
+  enabled: false
   host: localhost
   port: 6379
   ssl: false
@@ -9,3 +9,5 @@ redis:
 givecreativeplot:
   max-plots: 9
   min-plots: 4
+skincontrol: true
+runonjoincmd: true

@@ -1,9 +1,14 @@
 package org.mythicmc.mythicstore;
 
+import org.bukkit.event.HandlerList;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitTask;
 import org.mythicmc.mythicstore.command.CreativePlotCommand;
+import org.mythicmc.mythicstore.command.RunOnJoinCommand;
+import org.mythicmc.mythicstore.command.SkinControlCommand;
 import org.mythicmc.mythicstore.command.StoreCommand;
+import org.mythicmc.mythicstore.listener.PlayerJoinListener;
+import org.mythicmc.mythicstore.util.DelayedCommandsData;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
 import redis.clients.jedis.JedisPoolConfig;
@@ -14,6 +19,8 @@ public class MythicStore extends JavaPlugin {
     private BukkitTask task;
     private boolean loggedOnce = false;
     private final String COMMAND_QUEUE = "command-queue";
+
+    private DelayedCommandsData delayedCommandsData;
 
     @Override
     public void onEnable() {
@@ -30,6 +37,20 @@ public class MythicStore extends JavaPlugin {
             if (getConfig().getBoolean("redis.enabled")) {
                 createPool();
                 createTask();
+            }
+
+            if (getConfig().getBoolean("skincontrol")) {
+                pluginCommand = getCommand("skincontrol");
+                if (pluginCommand != null)
+                    pluginCommand.setExecutor(new SkinControlCommand(this));
+            }
+
+            if (getConfig().getBoolean("runonjoincmd")) {
+                loadDelayedCommands();
+                pluginCommand = getCommand("runonjoin");
+                if (pluginCommand != null)
+                    pluginCommand.setExecutor(new RunOnJoinCommand(this));
+                getServer().getPluginManager().registerEvents(new PlayerJoinListener(this), this);
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -85,6 +106,13 @@ public class MythicStore extends JavaPlugin {
         }, 20 * 30, 20 * 30);
     }
 
+
+    private void loadDelayedCommands() {
+        delayedCommandsData = new DelayedCommandsData(this);
+        delayedCommandsData.createDataYML();
+        delayedCommandsData.reloadData();
+    }
+
     public void reloadPlugin() {
         if (task != null) {
             task.cancel();
@@ -94,17 +122,46 @@ public class MythicStore extends JavaPlugin {
             pool.close();
             pool = null;
         }
+
+        var pluginCommand = getCommand("skincontrol");
+        if(pluginCommand != null)
+            pluginCommand.setExecutor(null);
+        delayedCommandsData = null;
+        pluginCommand = getCommand("runonjoin");
+        if(pluginCommand != null)
+            pluginCommand.setExecutor(null);
+        HandlerList.unregisterAll(this);
+
         reloadConfig();
         if (getConfig().getBoolean("redis.enabled")) {
             createPool();
             createTask();
         }
+
+        if (getConfig().getBoolean("skincontrol")) {
+            pluginCommand = getCommand("skincontrol");
+            if (pluginCommand != null)
+                pluginCommand.setExecutor(new SkinControlCommand(this));
+        }
+
+        if (getConfig().getBoolean("runonjoincmd")) {
+            loadDelayedCommands();
+            pluginCommand = getCommand("runonjoin");
+            if (pluginCommand != null)
+                pluginCommand.setExecutor(new RunOnJoinCommand(this));
+            getServer().getPluginManager().registerEvents(new PlayerJoinListener(this), this);
+        }
+
     }
 
     @Override
     public void onDisable() {
-        task.cancel();
-        pool.close();
+        if (task != null) {
+            task.cancel();
+        }
+        if (pool != null) {
+            pool.close();
+        }
     }
 
     public JedisPool getPool() {
@@ -113,5 +170,9 @@ public class MythicStore extends JavaPlugin {
 
     public BukkitTask getTask() {
         return task;
+    }
+
+    public DelayedCommandsData getDelayedCommandsData() {
+        return delayedCommandsData;
     }
 }

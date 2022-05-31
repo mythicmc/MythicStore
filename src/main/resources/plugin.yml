@@ -4,6 +4,8 @@ description: "Utilities to help mythicmc/store run actions on the MythicMC serve
 authors: ["Ibrahim Ansari <ansari.ibrahim1@gmail.com>"]
 main: "org.mythicmc.mythicstore.MythicStore"
 api-version: "1.13"
+softdepend:
+  - LuckPerms
 
 commands:
   mythicstore:
@@ -14,6 +16,15 @@ commands:
     description: "Gives the player an additional creative plot."
     usage: "/givecreativeplot <player>"
     permission: mythicstore.giveplot
+  skincontrol:
+    description: "Main command for SkinControl."
+    usage: "/skincontrol <upgrade|expire> <player> (days)"
+    permission: mythicstore.skincontrol
+  runonjoin:
+    description: "Runs the command next time this player logs in"
+    usage: "/runonjoin <player> <command>"
+    aliases: [ roj ]
+    permission: mythicstore.runonjoin
 
 permissions:
   mythicstore.reload:
@@ -21,4 +32,13 @@ permissions:
     default: op
   mythicstore.giveplot:
     description: "Give a player a plot"
+    default: op
+  mythicstore.purchasedskin:
+    description: "Indicates that the person has purchased the Vip rank for an extended time."
+    default: op
+  mythicstore.skincontrol:
+    description: "Permission to use /skincontrol command"
+    default: op
+  mythicstore.runonjoin:
+    description: "Permission to use /runonjoin command"
     default: op
