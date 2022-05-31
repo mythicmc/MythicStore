@@ -1,5 +1,6 @@
 package org.mythicmc.mythicstore;
 
+import org.bukkit.event.HandlerList;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitTask;
 import org.mythicmc.mythicstore.command.CreativePlotCommand;
@@ -121,11 +122,36 @@ public class MythicStore extends JavaPlugin {
             pool.close();
             pool = null;
         }
+
+        var pluginCommand = getCommand("skincontrol");
+        if(pluginCommand != null)
+            pluginCommand.setExecutor(null);
+        delayedCommandsData = null;
+        pluginCommand = getCommand("runonjoin");
+        if(pluginCommand != null)
+            pluginCommand.setExecutor(null);
+        HandlerList.unregisterAll(this);
+
         reloadConfig();
         if (getConfig().getBoolean("redis.enabled")) {
             createPool();
             createTask();
         }
+
+        if (getConfig().getBoolean("skincontrol")) {
+            pluginCommand = getCommand("skincontrol");
+            if (pluginCommand != null)
+                pluginCommand.setExecutor(new SkinControlCommand(this));
+        }
+
+        if (getConfig().getBoolean("runonjoincmd")) {
+            loadDelayedCommands();
+            pluginCommand = getCommand("runonjoin");
+            if (pluginCommand != null)
+                pluginCommand.setExecutor(new RunOnJoinCommand(this));
+            getServer().getPluginManager().registerEvents(new PlayerJoinListener(this), this);
+        }
+
     }
 
     @Override
