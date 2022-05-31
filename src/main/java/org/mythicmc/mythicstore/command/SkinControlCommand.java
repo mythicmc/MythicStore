@@ -5,6 +5,8 @@ import net.luckperms.api.model.user.User;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
+import org.bukkit.configuration.file.FileConfiguration;
+import org.bukkit.configuration.file.YamlConfiguration;
 import org.mythicmc.mythicstore.MythicStore;
 
 import java.io.*;
@@ -13,9 +15,15 @@ import java.util.concurrent.CompletableFuture;
 
 public class SkinControlCommand implements CommandExecutor {
     private final MythicStore plugin;
+    private final File playerDataFile;
+    private final FileConfiguration playerData;
 
     public SkinControlCommand(MythicStore plugin) {
         this.plugin = plugin;
+        this.playerDataFile = new File(plugin.getDataFolder(), "skincontrol.yml");
+        if (!playerDataFile.exists())
+            plugin.saveResource("skincontrol.yml", true);
+        this.playerData = YamlConfiguration.loadConfiguration(playerDataFile);
     }
 
     @Override
@@ -44,18 +52,18 @@ public class SkinControlCommand implements CommandExecutor {
             if (hasPerm) return;
 
             plugin.getServer().getScheduler().runTask(plugin, () -> {
-                int daysLeft = plugin.getSkinControlData().getInt(args[0]);
+                int daysLeft = playerData.getInt(args[0]);
 
                 // If it's 0, then it doesn't exist.
                 if (daysLeft + Integer.parseInt(args[1]) < 30) {
-                    plugin.getSkinControlData().set(args[0], daysLeft + Integer.parseInt(args[1]));
+                    playerData.set(args[0], daysLeft + Integer.parseInt(args[1]));
                 } else {
-                    plugin.getSkinControlData().set(args[0], null);
+                    playerData.set(args[0], null);
                     plugin.getServer().dispatchCommand(sender, "lp user " + args[0] + " parent add ltvip");
                 }
-                String data = plugin.getSkinControlData().saveToString();
+                String data = playerData.saveToString();
                 plugin.getServer().getScheduler().runTaskAsynchronously(plugin, () -> {
-                    try (Writer writer = new OutputStreamWriter(new FileOutputStream(plugin.getSkinControlFile()))) {
+                    try (Writer writer = new OutputStreamWriter(new FileOutputStream(playerDataFile))) {
                         writer.write(data);
                     } catch (IOException e) {
                         e.printStackTrace();
@@ -87,7 +95,6 @@ public class SkinControlCommand implements CommandExecutor {
         });
     }
 
-
     private CompletableFuture<Boolean> checkUserPermission(String name) {
         User data = LuckPermsProvider.get().getUserManager().getUser(name);
         if (data == null) {
@@ -106,5 +113,4 @@ public class SkinControlCommand implements CommandExecutor {
                     .asBoolean());
         }
     }
-
 }

@@ -1,7 +1,5 @@
 package org.mythicmc.mythicstore;
 
-import org.bukkit.configuration.file.FileConfiguration;
-import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitTask;
 import org.mythicmc.mythicstore.command.CreativePlotCommand;
@@ -15,16 +13,12 @@ import redis.clients.jedis.JedisPool;
 import redis.clients.jedis.JedisPoolConfig;
 import redis.clients.jedis.Protocol;
 
-import java.io.File;
-
 public class MythicStore extends JavaPlugin {
     private JedisPool pool;
     private BukkitTask task;
     private boolean loggedOnce = false;
     private final String COMMAND_QUEUE = "command-queue";
 
-    private File skinControlFile;
-    private FileConfiguration skinControlData;
     private DelayedCommandsData delayedCommandsData;
 
     @Override
@@ -45,7 +39,6 @@ public class MythicStore extends JavaPlugin {
             }
 
             if (getConfig().getBoolean("skincontrol")) {
-                loadSkinControl();
                 pluginCommand = getCommand("skincontrol");
                 if (pluginCommand != null)
                     pluginCommand.setExecutor(new SkinControlCommand(this));
@@ -112,12 +105,6 @@ public class MythicStore extends JavaPlugin {
         }, 20 * 30, 20 * 30);
     }
 
-    private void loadSkinControl() {
-        skinControlFile = new File(getDataFolder(), "skincontrol.yml");
-        if (!skinControlFile.exists())
-            this.saveResource("skincontrol.yml", true);
-        skinControlData = YamlConfiguration.loadConfiguration(skinControlFile);
-    }
 
     private void loadDelayedCommands() {
         delayedCommandsData = new DelayedCommandsData(this);
@@ -157,14 +144,6 @@ public class MythicStore extends JavaPlugin {
 
     public BukkitTask getTask() {
         return task;
-    }
-
-    public File getSkinControlFile() {
-        return skinControlFile;
-    }
-
-    public FileConfiguration getSkinControlData() {
-        return skinControlData;
     }
 
     public DelayedCommandsData getDelayedCommandsData() {
