@@ -1,10 +1,10 @@
 plugins {
     id 'java'
-    id 'com.github.johnrengelman.shadow' version '5.0.0'
+    id 'com.github.johnrengelman.shadow' version '7.1.2'
 }
 
 group 'org.mythicmc'
-version '1.1.0'
+version '1.2.0'
 
 description = "Utilities to help mythicmc/store run actions on the MythicMC server."
 
