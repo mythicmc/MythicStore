@@ -1,7 +1,7 @@
 name: "MythicStore"
-version: "1.2.0"
-description: "Utilities to help mythicmc/store run actions on the MythicMC server."
-authors: ["Ibrahim Ansari <ansari.ibrahim1@gmail.com>"]
+version: "{{ version }}"
+description: "{{ description }}"
+authors: ["retrixe", "Morvin"]
 main: "org.mythicmc.mythicstore.MythicStore"
 api-version: "1.13"
 softdepend:
