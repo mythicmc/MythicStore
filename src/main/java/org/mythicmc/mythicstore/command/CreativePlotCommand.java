@@ -11,6 +11,8 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.mythicmc.mythicstore.MythicStore;
 
+import java.util.logging.Level;
+
 public class CreativePlotCommand implements CommandExecutor {
     private final MythicStore plugin;
 
@@ -38,6 +40,10 @@ public class CreativePlotCommand implements CommandExecutor {
                 .build();
         // Find all nodes which match this context
         var nodes = user.resolveInheritedNodes(QueryOptions.contextual(context));
+        if (nodes.stream().anyMatch(n -> n.getKey().equalsIgnoreCase("plots.plot." + maxPlots))) {
+            sender.sendMessage("§4" + p.getName() + " already has the maximum number of plots");
+            return true;
+        }
 
         for (int i = maxPlots - 1; i >= minPlots; i--) {
             int finalI = i;
@@ -49,13 +55,23 @@ public class CreativePlotCommand implements CommandExecutor {
                     user.data().remove(node.get());
                 }
                 user.data().add(Node.builder("plots.plot." + (i + 1)).context(context).build());
-                lp.getUserManager().saveUser(user).thenAcceptAsync(success -> sender
-                        .sendMessage("§aSuccessfully gave " + p.getName() + " a creative plot"));
+                Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
+                    synchronized (lp) {
+                        try {
+                            lp.getUserManager().saveUser(user).get();
+                            Bukkit.getScheduler().runTask(plugin, () -> sender.sendMessage(
+                                    "§aSuccessfully gave " + p.getName() + " a creative plot"));
+                        } catch (Exception e) {
+                            plugin.getLogger().log(Level.SEVERE,
+                                    "Failed to save user data for " + p.getName(), e);
+                        }
+                    }
+                });
                 return true;
             }
         }
 
-        sender.sendMessage("§4That player already has the maximum number of plots");
+        sender.sendMessage("§4Failed to give " + p.getName() + " a creative plot");
         return true;
     }
 }
